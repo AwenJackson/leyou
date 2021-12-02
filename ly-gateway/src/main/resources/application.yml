@@ -1,0 +1,53 @@
+server:
+  port: 10010
+spring:
+  application:
+    name: apis-gateway
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:10086/eureka
+  instance:
+    lease-renewal-interval-in-seconds: 5 # 每隔5秒发送一次心跳
+    lease-expiration-duration-in-seconds: 10 # 10秒不发送就过期
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
+zuul:
+  prefix: /api # 添加路由前缀
+  routes:
+    item-service: /item/**  # 将商品微服务映射到/item/**
+    search-service: /search/**  # 将搜索微服务映射到/search/**
+    user-service: /user/**  # 将用户微服务映射到/user/**
+    auth-service: /auth/** # 授权中心微服务
+    cart-service: /cart/**  #购物车微服务
+    upload-service:
+      path: /upload/**
+      serviceId: upload-service
+      strip-prefix: false  # 忽略前缀 如果我们设置为false,那么路由前缀会随着路径一起转发到真实服务 【特殊】
+  add-host-header: true   #携带请求本身的head（请求头）信息
+  sensitive-headers:
+ly:
+  jwt:
+    pubKeyPath: C:\\tmp\\rsa\\id_rsa.pub # 公钥地址
+    cookieName: LY_TOKEN # cookie的名称
+  filter:
+    allowPaths:
+      - /api/auth
+      - /api/search
+      - /api/user/register
+      - /api/user/check
+      - /api/user/code
+      - /api/item
+ribbon:
+  ConnectTimeout: 1000 # 连接超时时间(ms)
+  ReadTimeout: 3500 # 通信超时时间(ms)
+  OkToRetryOnAllOperations: true # 是否对所有操作重试
+  MaxAutoRetries: 0 # 当前服务重试次数
+  MaxAutoRetriesNextServer: 0 # 切换服务重试次数
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMillisecond: 5000 # 熔断超时时长：5000ms
